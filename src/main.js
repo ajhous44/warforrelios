@@ -725,7 +725,7 @@ function createShadowCreature(platformIndex) {
   });
   
   const shadowSprite = new THREE.Sprite(shadowMaterial);
-  shadowSprite.scale.set(1.5, 2, 1); // Slightly smaller than player
+  shadowSprite.scale.set(2.5, 3.5, 1); // Larger, more imposing presence
   
   // Position on platform
   const spawnX = platform.x + (Math.random() - 0.5) * (platform.width - 1);
@@ -817,17 +817,23 @@ function checkShadowAttackCollision() {
     const shadowBounds = {
       x: shadow.sprite.position.x,
       y: shadow.sprite.position.y,
-      width: 1.5, // Shadow sprite width
-      height: 2   // Shadow sprite height
+      width: 2.5, // Shadow sprite width (updated for larger size)
+      height: 3.5 // Shadow sprite height (updated for larger size)
     };
     
     // Simple AABB collision detection
     if (Math.abs(playerBounds.x - shadowBounds.x) < (playerBounds.width / 2 + shadowBounds.width / 2) &&
         Math.abs(playerBounds.y - shadowBounds.y) < (playerBounds.height / 2 + shadowBounds.height / 2)) {
       
-      // Shadow creature hit! Remove it and play sound
+      // Shadow creature hit! Create explosion effect
+      const explosionPosition = shadow.sprite.position.clone();
+      createSmokeExplosion(explosionPosition);
+      
+      // Remove shadow and increment kill count
       scene.remove(shadow.sprite);
       gameState.shadows.splice(index, 1);
+      gameState.killCount++;
+      updateKillCountDisplay();
       
       // Play ghost gone sound effect
       if (gameState.audio.ghostGoneSfx) {
@@ -835,9 +841,87 @@ function checkShadowAttackCollision() {
         gameState.audio.ghostGoneSfx.play().catch(e => console.log('Ghost Gone SFX play failed:', e));
       }
       
-      console.log(`Shadow creature banished! Total shadows: ${gameState.shadows.length}`);
+      console.log(`Shadow creature banished! Kills: ${gameState.killCount}, Total shadows: ${gameState.shadows.length}`);
     }
   });
+}
+
+// Create smoke explosion effect when shadow is banished
+function createSmokeExplosion(position) {
+  const smokeParticles = [];
+  const particleCount = 12;
+  
+  for (let i = 0; i < particleCount; i++) {
+    // Create smoke particle
+    const smokeGeometry = new THREE.SphereGeometry(0.1 + Math.random() * 0.1, 4, 4);
+    const smokeMaterial = new THREE.MeshBasicMaterial({
+      color: new THREE.Color().setHSL(0.08, 0.3, 0.2 + Math.random() * 0.2), // Dark golden/brown smoke
+      transparent: true,
+      opacity: 0.8
+    });
+    
+    const smokeParticle = new THREE.Mesh(smokeGeometry, smokeMaterial);
+    smokeParticle.position.copy(position);
+    
+    // Random explosion direction
+    const angle = (i / particleCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
+    const speed = 0.03 + Math.random() * 0.02;
+    const upwardBias = 0.01 + Math.random() * 0.01;
+    
+    scene.add(smokeParticle);
+    
+    smokeParticles.push({
+      mesh: smokeParticle,
+      velocity: {
+        x: Math.cos(angle) * speed,
+        y: upwardBias,
+        z: Math.sin(angle) * speed * 0.3
+      },
+      life: 0,
+      maxLife: 1500 + Math.random() * 1000 // 1.5-2.5 seconds
+    });
+  }
+  
+  // Animate smoke explosion
+  function animateSmokeExplosion() {
+    let activeParticles = 0;
+    
+    smokeParticles.forEach((particle, index) => {
+      if (particle.mesh.parent) {
+        activeParticles++;
+        particle.life += 16; // Approximate frame time
+        
+        // Update position
+        particle.mesh.position.x += particle.velocity.x;
+        particle.mesh.position.y += particle.velocity.y;
+        particle.mesh.position.z += particle.velocity.z;
+        
+        // Apply gravity and drag
+        particle.velocity.y -= 0.0005; // Gravity
+        particle.velocity.x *= 0.98;   // Drag
+        particle.velocity.z *= 0.98;
+        
+        // Scale and fade out
+        const lifeFactor = particle.life / particle.maxLife;
+        const scale = 1 + lifeFactor * 2; // Grow as it dissipates
+        particle.mesh.scale.setScalar(scale);
+        particle.mesh.material.opacity = Math.max(0, 0.8 * (1 - lifeFactor));
+        
+        // Remove when life expires
+        if (particle.life >= particle.maxLife) {
+          scene.remove(particle.mesh);
+        }
+      }
+    });
+    
+    // Continue animation if particles are still active
+    if (activeParticles > 0) {
+      requestAnimationFrame(animateSmokeExplosion);
+    }
+  }
+  
+  // Start the explosion animation
+  animateSmokeExplosion();
 }
 
 // Create shadow
@@ -1079,6 +1163,34 @@ instructions.innerHTML = `
   </div>
 `;
 document.body.appendChild(instructions);
+
+// Create kill count display
+const killCountDisplay = document.createElement('div');
+killCountDisplay.innerHTML = `
+  <div style="position: fixed; top: 20px; right: 20px; color: #ff9466; font-family: Arial; font-size: 18px; z-index: 1000;">
+    <div style="background: rgba(42,24,16,0.9); padding: 12px 18px; border-radius: 8px; border: 2px solid #ff6b47; box-shadow: 0 0 20px rgba(255,100,71,0.3); text-align: center;">
+      <div style="color: #ffaa88; font-size: 14px; margin-bottom: 4px;">👻 SHADOWS BANISHED</div>
+      <div id="killCountNumber" style="color: #ffffff; font-size: 24px; font-weight: bold;">0</div>
+    </div>
+  </div>
+`;
+document.body.appendChild(killCountDisplay);
+
+// Update kill count display
+function updateKillCountDisplay() {
+  const killCountElement = document.getElementById('killCountNumber');
+  if (killCountElement) {
+    killCountElement.textContent = gameState.killCount;
+    
+    // Add a brief highlight effect
+    killCountElement.style.color = '#ffff00';
+    killCountElement.style.transform = 'scale(1.2)';
+    setTimeout(() => {
+      killCountElement.style.color = '#ffffff';
+      killCountElement.style.transform = 'scale(1)';
+    }, 300);
+  }
+}
 
 // Start the game
 init();
