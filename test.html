@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The War for Enheiser - Epic Fantasy Novel</title>
+    <script src="https://cdn.jsdelivr.net/npm/motion@latest/dist/motion.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(
+                135deg,
+                #0a0f0d 0%,
+                #1a2520 25%,
+                #0d1b12 50%,
+                #162119 75%,
+                #0a0f0d 100%
+            );
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .hero-container {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(34, 139, 34, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 100, 0, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(46, 125, 50, 0.05) 0%, transparent 50%);
+        }
+
+        .forest-particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(34, 139, 34, 0.3);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .particle:nth-child(odd) {
+            background: rgba(0, 150, 0, 0.2);
+            animation-delay: -2s;
+        }
+
+        .particle:nth-child(3n) {
+            background: rgba(85, 107, 47, 0.25);
+            animation-delay: -4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            50% { transform: translateY(-100px) rotate(180deg); }
+            90% { opacity: 1; }
+        }
+
+        .content-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            max-width: 1200px;
+            width: 100%;
+            z-index: 10;
+            position: relative;
+            padding-right: 5%;
+        }
+
+        .text-content {
+            text-align: center;
+            width: 66.67%;
+            max-width: 800px;
+            z-index: 10;
+        }
+
+        .hero-image {
+            position: absolute;
+            left: -8%;
+            top: 20%;
+            transform: translateY(-50%) rotate(-15deg);
+            width: 35%;
+            height: auto;
+            max-width: 450px;
+            z-index: 5;
+            opacity: 0;
+            filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.7));
+        }
+
+        /* Initial states for entrance animations */
+        .subtitle, .title, .cta-container, .author-info, .hero-image {
+            opacity: 0;
+        }
+
+        .subtitle {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(34, 139, 34, 0.8);
+            margin-bottom: 0.8rem;
+        }
+
+        .title {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(
+                45deg,
+                #ffffff 0%,
+                #e8f5e8 25%,
+                #c8e6c9 50%,
+                #a5d6a7 75%,
+                #81c784 100%
+            );
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(34, 139, 34, 0.3);
+        }
+
+        .part-text {
+            display: block;
+            font-size: 0.5em;
+            font-weight: 400;
+            margin-top: 0.5rem;
+            color: rgba(255, 255, 255, 0.7);
+            letter-spacing: 1px;
+        }
+
+        .description {
+            font-size: 1.25rem;
+            font-weight: 300;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-container {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2.5rem;
+        }
+
+        .cta-button {
+            padding: 0.8rem 2rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-primary {
+            background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(46, 125, 50, 0.3);
+        }
+
+        .cta-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(46, 125, 50, 0.4);
+        }
+
+        .cta-secondary {
+            background: transparent;
+            color: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(34, 139, 34, 0.5);
+        }
+
+        .cta-secondary:hover {
+            background: rgba(34, 139, 34, 0.1);
+            border-color: rgba(34, 139, 34, 0.8);
+            transform: translateY(-2px);
+        }
+
+        .author-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.95rem;
+        }
+
+        .author-name {
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .decorative-line {
+            height: 1px;
+            width: 60px;
+            background: linear-gradient(90deg, transparent, rgba(34, 139, 34, 0.6), transparent);
+        }
+
+        .forest-silhouette {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            background: linear-gradient(
+                to top,
+                rgba(10, 15, 13, 0.9) 0%,
+                rgba(10, 15, 13, 0.5) 50%,
+                transparent 100%
+            );
+            clip-path: polygon(
+                0% 100%,
+                0% 85%,
+                5% 75%,
+                10% 80%,
+                15% 70%,
+                20% 75%,
+                25% 65%,
+                30% 70%,
+                35% 60%,
+                40% 65%,
+                45% 55%,
+                50% 60%,
+                55% 50%,
+                60% 55%,
+                65% 45%,
+                70% 50%,
+                75% 40%,
+                80% 45%,
+                85% 35%,
+                90% 40%,
+                95% 30%,
+                100% 35%,
+                100% 100%
+            );
+        }
+
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+
+        .floating-leaf {
+            position: absolute;
+            width: 8px;
+            height: 12px;
+            background: rgba(34, 139, 34, 0.3);
+            border-radius: 0 100% 0 100%;
+            animation: drift 10s linear infinite;
+        }
+
+        @keyframes drift {
+            0% {
+                transform: translateY(-10px) rotateZ(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(calc(100vh + 20px)) rotateZ(360deg);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-container {
+                padding: 1rem;
+            }
+
+            .content-wrapper {
+                justify-content: center;
+                padding-right: 0;
+            }
+
+            .hero-image {
+                width: 30%;
+                left: -10%;
+                transform: translateY(-50%) rotate(-10deg);
+            }
+
+            .cta-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .cta-button {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .author-info {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero-container">
+        <!-- Animated Forest Particles -->
+        <div class="forest-particles" id="particles"></div>
+        
+        <!-- Floating Elements -->
+        <div class="floating-elements" id="floating-elements"></div>
+        
+        <!-- Forest Silhouette -->
+        <div class="forest-silhouette"></div>
+        
+        <!-- Hero Image -->
+        <img src="22.png" alt="The War For Relios Character" class="hero-image">
+        
+        <!-- Main Content -->
+        <div class="content-wrapper">
+            <div class="text-content">
+                <div class="subtitle">
+                    An Epic Fantasy Saga
+                </div>
+                
+                <h1 class="title">
+                    The War For Enheiser
+                    <span class="part-text">Vol 1: The Resort of Tarsken</span>
+                </h1>
+                
+                <div class="cta-container">
+                    <a href="#" class="cta-button cta-primary">Buy Now</a>
+                    <a href="#" class="cta-button cta-secondary">Learn More</a>
+                </div>
+                
+                <div class="author-info">
+                    <div class="decorative-line"></div>
+                    <span>By</span>
+                    <span class="author-name">John Doe</span>
+                    <div class="decorative-line"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // Create floating leaves
+        function createFloatingLeaves() {
+            const container = document.getElementById('floating-elements');
+            
+            function addLeaf() {
+                const leaf = document.createElement('div');
+                leaf.className = 'floating-leaf';
+                leaf.style.left = Math.random() * 100 + '%';
+                leaf.style.animationDuration = (Math.random() * 5 + 8) + 's';
+                leaf.style.animationDelay = Math.random() * 2 + 's';
+                container.appendChild(leaf);
+                
+                // Remove leaf after animation
+                setTimeout(() => {
+                    if (container.contains(leaf)) {
+                        container.removeChild(leaf);
+                    }
+                }, 12000);
+            }
+            
+            // Add leaves periodically
+            setInterval(addLeaf, 3000);
+            // Add initial leaves
+            for (let i = 0; i < 3; i++) {
+                setTimeout(addLeaf, i * 1000);
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            const { animate, stagger } = Motion;
+            
+            createParticles();
+            createFloatingLeaves();
+            
+            // Entrance animations using Motion
+            // Hero character jumps in with dramatic rotation and movement
+            animate('.hero-image', 
+                { 
+                    opacity: [0, 1], 
+                    x: [-300, 0], 
+                    y: [-20, 0],
+                    rotate: [-15, 5],
+                    scale: [0.8, 1]
+                }, 
+                { duration: 1.5, delay: 0.1, ease: "easeOut" }
+            );
+            
+            animate('.subtitle', 
+                { opacity: [0, 1], y: [30, 0] }, 
+                { duration: 0.8, delay: 0.4 }
+            );
+            
+            animate('.title', 
+                { opacity: [0, 1], y: [50, 0] }, 
+                { duration: 1, delay: 0.6 }
+            );
+            
+            animate('.cta-container', 
+                { opacity: [0, 1], y: [30, 0] }, 
+                { duration: 0.8, delay: 1.0 }
+            );
+            
+            animate('.author-info', 
+                { opacity: [0, 1] }, 
+                { duration: 0.8, delay: 1.4 }
+            );
+            
+            // Add parallax effect on mouse move
+            document.addEventListener('mousemove', (e) => {
+                const particles = document.querySelectorAll('.particle');
+                const mouseX = e.clientX / window.innerWidth;
+                const mouseY = e.clientY / window.innerHeight;
+                
+                particles.forEach((particle, index) => {
+                    const speed = (index % 3 + 1) * 0.5;
+                    const x = (mouseX - 0.5) * speed * 20;
+                    const y = (mouseY - 0.5) * speed * 20;
+                    particle.style.transform = `translate(${x}px, ${y}px)`;
+                });
+            });
+            
+            // Add button hover effects using Motion
+            document.querySelectorAll('.cta-button').forEach(button => {
+                button.addEventListener('mouseenter', () => {
+                    animate(button, 
+                        { scale: 1.05, y: -2 }, 
+                        { duration: 0.2, ease: "easeOut" }
+                    );
+                });
+                
+                button.addEventListener('mouseleave', () => {
+                    animate(button, 
+                        { scale: 1, y: 0 }, 
+                        { duration: 0.2, ease: "easeOut" }
+                    );
+                });
+            });
+        });
+    </script>
+</body>
+</html>
