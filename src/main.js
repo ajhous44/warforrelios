@@ -755,7 +755,7 @@ function spawnRandomShadow() {
   if (gameState.shadows.length >= 3) return;
   
   // Random chance to spawn (adjust for frequency)
-  if (Math.random() < 0.002) { // 0.2% chance per frame
+  if (Math.random() < 0.006) { // 0.6% chance per frame - more frequent spawning
     const platformIndex = Math.floor(Math.random() * gameState.platforms.length);
     const newShadow = createShadowCreature(platformIndex);
     
